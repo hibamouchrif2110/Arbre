@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <chrono>
+#include <map>
 using namespace std;
 using namespace std::chrono;
 
@@ -100,21 +101,23 @@ public:
     }
 };
 
+
 int main() {
-    Arbre* racine = new Arbre(8);
+Arbre* racine = new Arbre(1);
 
-    // Insertion des valeurs
-    racine = racine->insertion(racine, 2);
-    racine = racine->insertion(racine, 3);
-    racine = racine->insertion(racine, 5);
-    racine = racine->insertion(racine, 6);
-    racine = racine->insertion(racine, 7);
-    racine = racine->insertion(racine, 9);
-    racine = racine->insertion(racine, 8);
-    racine = racine->insertion(racine, 1);
-    racine = racine->insertion(racine, 4);
+int n = 30000;
+// Insertion des valeurs de 2 à n
+for (int i = 2; i <= n; i++) {
+    racine = racine->insertion(racine, i);
+}
 
-    // Mesure du temps d'affichage
+    // =========================================
+    // 1. ABR : MESURE DU TEMPS D'AFFICHAGE
+    // =========================================
+
+    cout << "========== ABR PERSONNEL ==========" << endl;
+    cout << "Valeurs : ";
+
     auto debut = high_resolution_clock::now();
 
     racine->afficher(racine);
@@ -124,18 +127,22 @@ int main() {
     auto tempsAffichage =
         duration_cast<microseconds>(fin - debut);
 
-    cout << "\nTemps d'affichage : "
+    cout << "\nTemps d'affichage ABR : "
          << tempsAffichage.count()
          << " microsecondes" << endl;
 
-    // Recherche d'une valeur
-    int x;
+    // =========================================
+    // 2. ABR : RECHERCHE
+    // =========================================
+
+    int rechercheABR;
+
     cout << "\nDonner la valeur a rechercher : ";
-    cin >> x;
+    cin >> rechercheABR;
 
     debut = high_resolution_clock::now();
 
-    bool trouve = racine->recherche(racine, x);
+    bool trouve = racine->recherche(racine, rechercheABR);
 
     fin = high_resolution_clock::now();
 
@@ -147,32 +154,139 @@ int main() {
     else
         cout << "Valeur non trouvee." << endl;
 
-    cout << "Temps de recherche : "
+    cout << "Temps de recherche ABR : "
          << tempsRecherche.count()
          << " microsecondes" << endl;
 
-    // Suppression d'une valeur
+    // =========================================
+    // 3. ABR : SUPPRESSION
+    // =========================================
+
+    int suppressionABR;
+
     cout << "\nDonner la valeur a supprimer : ";
-    cin >> x;
+    cin >> suppressionABR;
 
     debut = high_resolution_clock::now();
 
-    racine = racine->supprimer(racine, x);
+    racine = racine->supprimer(racine, suppressionABR);
 
     fin = high_resolution_clock::now();
 
     auto tempsSuppression =
         duration_cast<microseconds>(fin - debut);
 
-    cout << "Temps de suppression : "
+    cout << "Temps de suppression ABR : "
          << tempsSuppression.count()
          << " microsecondes" << endl;
 
-    // Affichage après suppression
     cout << "\nABR apres suppression : ";
 
-    racine->afficher(racine);
+    if (racine != nullptr)
+        racine->afficher(racine);
+
     cout << endl;
+
+
+    // =========================================
+    // 4. INITIALISATION DE MAP
+    // =========================================
+
+    map<int, int> m;
+
+for (int i = 1; i <= n; i++) {
+    m[i] = i;
+}
+
+    cout << "\n========== STD::MAP ==========" << endl;
+
+    // =========================================
+    // 5. MAP : AFFICHAGE
+    // =========================================
+
+    cout << "Valeurs : ";
+
+    debut = high_resolution_clock::now();
+
+    for (const auto& element : m)
+        cout << element.first << " ";
+
+    fin = high_resolution_clock::now();
+
+    auto tempsAffichageMap =
+        duration_cast<microseconds>(fin - debut);
+
+    cout << "\nTemps d'affichage map : "
+         << tempsAffichageMap.count()
+         << " microsecondes" << endl;
+
+    // =========================================
+    // 6. MAP : RECHERCHE
+    // =========================================
+
+    debut = high_resolution_clock::now();
+
+    bool trouveMap = (m.find(rechercheABR) != m.end());
+
+    fin = high_resolution_clock::now();
+
+    auto tempsRechercheMap =
+        duration_cast<microseconds>(fin - debut);
+
+    if (trouveMap)
+        cout << "Valeur trouvee dans map." << endl;
+    else
+        cout << "Valeur non trouvee dans map." << endl;
+
+    cout << "Temps de recherche map : "
+         << tempsRechercheMap.count()
+         << " microsecondes" << endl;
+
+    // =========================================
+    // 7. MAP : SUPPRESSION
+    // =========================================
+
+    debut = high_resolution_clock::now();
+
+    m.erase(suppressionABR);
+
+    fin = high_resolution_clock::now();
+
+    auto tempsSuppressionMap =
+        duration_cast<microseconds>(fin - debut);
+
+    cout << "Temps de suppression map : "
+         << tempsSuppressionMap.count()
+         << " microsecondes" << endl;
+
+    cout << "map apres suppression : ";
+
+    for (const auto& element : m)
+        cout << element.first << " ";
+
+    cout << endl;
+
+
+    // =========================================
+    // 8. COMPARAISON DES TEMPS
+    // =========================================
+
+    cout << "\n========== TABLEAU COMPARATIF =========="
+         << endl;
+
+    cout << "Operation       ABR (us)    map (us)" << endl;
+
+    cout << "Affichage       "
+         << tempsAffichage.count() << "           "
+         << tempsAffichageMap.count() << endl;
+
+    cout << "Recherche       "
+         << tempsRecherche.count() << "           "
+         << tempsRechercheMap.count() << endl;
+
+    cout << "Suppression     "
+         << tempsSuppression.count() << "           "
+         << tempsSuppressionMap.count() << endl;
 
     return 0;
 }
